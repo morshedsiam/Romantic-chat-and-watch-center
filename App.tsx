@@ -18,6 +18,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [username, setUsername] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [initialUsername, setInitialUsername] = useState<string>('');
   const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
@@ -39,14 +40,9 @@ const App: React.FC = () => {
   
   messagesRef.current = messages;
 
-  useEffect(() => {
-    const savedUsername = localStorage.getItem('chatUsername');
-    if (savedUsername) {
-      setUsername(savedUsername);
-    }
-  }, []);
-
   const handlePasswordSuccess = () => {
+    const savedUsername = localStorage.getItem('chatUsername') || '';
+    setInitialUsername(savedUsername);
     setIsAuthenticated(true);
   };
 
@@ -439,7 +435,7 @@ const App: React.FC = () => {
     <div className="w-full h-screen flex flex-col p-4 relative">
       <FloatingEmojis isSharing={isMediaActive} />
       {!isAuthenticated && <PasswordModal onPasswordSuccess={handlePasswordSuccess} />}
-      {isAuthenticated && !username && <UsernameModal onUsernameSet={handleUsernameSet} />}
+      {isAuthenticated && !username && <UsernameModal onUsernameSet={handleUsernameSet} initialUsername={initialUsername} />}
       
       <div className={`w-full h-full flex flex-col md:flex-row gap-4 transition-all duration-500 relative z-10 ${!username || !isAuthenticated ? 'scale-95' : ''}`}>
         <main className="flex-1 flex flex-col min-w-0">

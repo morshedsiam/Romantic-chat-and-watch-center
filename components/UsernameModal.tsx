@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 
 interface UsernameModalProps {
   onUsernameSet: (username: string) => void;
+  initialUsername: string;
 }
 
-const UsernameModal: React.FC<UsernameModalProps> = ({ onUsernameSet }) => {
-  const [name, setName] = useState('');
+const UsernameModal: React.FC<UsernameModalProps> = ({ onUsernameSet, initialUsername }) => {
+  const [name, setName] = useState(initialUsername);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
