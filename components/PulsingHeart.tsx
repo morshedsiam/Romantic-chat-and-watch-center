@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface PulsingHeartProps {
-  isTyping: boolean;
+  typingUsers: string[];
 }
 
 const HeartIcon = () => (
@@ -10,15 +10,33 @@ const HeartIcon = () => (
     </svg>
 );
 
-const PulsingHeart: React.FC<PulsingHeartProps> = ({ isTyping }) => {
+const PulsingHeart: React.FC<PulsingHeartProps> = ({ typingUsers }) => {
+  const isTyping = typingUsers.length > 0;
+
+  const generateTypingText = () => {
+    if (typingUsers.length === 0) return '';
+    if (typingUsers.length === 1) {
+      return `${typingUsers[0]} is typing...`;
+    }
+    if (typingUsers.length === 2) {
+      return `${typingUsers[0]} and ${typingUsers[1]} are typing...`;
+    }
+    return 'Several people are typing...';
+  };
+
   return (
     <div 
-        className={`absolute bottom-28 right-4 pointer-events-none z-30 transition-all duration-500 transform ${isTyping ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
+        className={`absolute bottom-28 right-4 pointer-events-none z-30 transition-all duration-500 transform flex flex-col items-center gap-2 ${isTyping ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
         aria-hidden="true"
     >
       <div className={isTyping ? 'pulse-heart-animation' : ''}>
         <HeartIcon />
       </div>
+      {isTyping && (
+        <p className="text-sm font-semibold text-rose-800 bg-white/50 px-3 py-1 rounded-full shadow-md text-center">
+          {generateTypingText()}
+        </p>
+      )}
     </div>
   );
 };

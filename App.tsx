@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChatMessage } from './types';
 import { supabase } from './services/supabaseClient';
@@ -207,7 +206,7 @@ const App: React.FC = () => {
     };
     fetchMessages();
 
-    const channel = supabase.channel(`whisper-room-v2:${Date.now()}`, {
+    const channel = supabase.channel('whisper-room-v2', {
       config: { presence: { key: username }, broadcast: { self: false } },
     });
     channelRef.current = channel;
@@ -367,8 +366,22 @@ const App: React.FC = () => {
 
   const handleSendMessage = useCallback(async (text: string) => {
     if (!username) return;
-    const { error } = await supabase.from('messages').insert([{ sender: username, text }]);
-    if (error) { setError('Message could not be sent.'); console.error('Error sending message:', error); }
+
+    const { data: newMessage, error } = await supabase
+        .from('messages')
+        .insert([{ sender: username, text }])
+        .select()
+        .single();
+
+    if (error) {
+        setError('Message could not be sent.');
+        console.error('Error sending message:', error);
+    } else if (newMessage) {
+        // The subscription might be delayed, so we add the message to the state
+        // ourselves for instant feedback. The subscription listener has a
+        // duplicate check which will prevent this message from being added twice.
+        setMessages(prev => [...prev, newMessage as ChatMessage]);
+    }
   }, [username]);
   
   const handleTypingStatusChange = useCallback((isTyping: boolean) => {
@@ -447,7 +460,7 @@ const App: React.FC = () => {
             onToggleMic={toggleMic}
             isMicOn={isMicOn}
           />
-          <PulsingHeart isTyping={typingUsers.length > 0} />
+          <PulsingHeart typingUsers={typingUsers} />
         </aside>
       </div>
     </div>

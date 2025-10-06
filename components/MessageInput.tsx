@@ -137,7 +137,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading, o
           onChange={handleTextChange}
           placeholder="Type your message..."
           disabled={isLoading}
-          className="flex-1 w-full px-4 py-3 bg-white/70 border border-rose-200 rounded-full focus:outline-none focus:ring-2 focus:ring-rose-400 transition-all duration-300 disabled:opacity-70"
+          className="flex-1 w-full px-4 py-3 bg-white/70 border border-rose-200 rounded-full focus:outline-none focus:ring-2 focus:ring-rose-400 transition-all duration-300 disabled:opacity-70 text-gray-800 placeholder:text-gray-500"
         />
         <button
           type="submit"
