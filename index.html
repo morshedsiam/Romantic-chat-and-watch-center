@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Romantic Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/heroicons@2.1.3/24/outline/index.js"></script>
+    <style>
+      body {
+        font-family: 'Lora', serif;
+        background: linear-gradient(-45deg, #f8b195, #f67280, #c06c84, #6c5b7b, #355c7d);
+        background-size: 400% 400%;
+        animation: gradient-animation 20s ease infinite;
+      }
+      @keyframes gradient-animation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      @keyframes pop-in {
+        0% {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      /* Animate only the last message bubble */
+      .message-list > div:last-of-type {
+        animation: pop-in 0.3s ease-out forwards;
+      }
+      @keyframes typing-dot {
+        0% { transform: translateY(0); }
+        25% { transform: translateY(-3px); }
+        50% { transform: translateY(0); }
+        100% { transform: translateY(0); }
+      }
+      .typing-dot {
+        animation: typing-dot 1.2s infinite ease-in-out;
+      }
+      .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+      .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+      @keyframes pulse-heart {
+        0% {
+          transform: scale(1);
+          opacity: 0.7;
+        }
+        50% {
+          transform: scale(1.15);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 0.7;
+        }
+      }
+      .pulse-heart-animation {
+        animation: pulse-heart 1.5s ease-in-out infinite;
+      }
+
+      /* Floating Emojis Animation */
+      @keyframes float-up {
+        0% {
+          transform: translateY(0) translateX(0) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-100vh) translateX(var(--x-end)) rotate(var(--rotate-end));
+          opacity: 0;
+        }
+      }
+      .emoji-floater {
+        position: absolute;
+        bottom: -50px;
+        font-size: 1.75rem;
+        pointer-events: none;
+        animation-name: float-up;
+        animation-timing-function: linear;
+        animation-iteration-count: 1;
+        will-change: transform, opacity;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.22.0",
+    "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/+esm"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

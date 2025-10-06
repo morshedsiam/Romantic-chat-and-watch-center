@@ -1,0 +1,9 @@
+{
+  "name": "Whisper Room",
+  "description": "A shared space for real-time conversations.",
+  "requestFramePermissions": [
+    "camera",
+    "display-capture",
+    "microphone"
+  ]
+}
