@@ -271,6 +271,12 @@ const App: React.FC = () => {
           setMessages(prev => [...prev, payload.new as ChatMessage]);
         }
       })
+      .on('broadcast', { event: 'new_message' }, ({ payload }) => {
+          const newMessage = payload.message as ChatMessage;
+          if (newMessage && !messagesRef.current.some(m => m.id === newMessage.id)) {
+              setMessages(prev => [...prev, newMessage]);
+          }
+      })
       .on('presence', { event: 'sync' }, () => {
         const newState = channel.presenceState();
         const currentUsers = Object.values(newState).flatMap((p: any) => p).map(p => p.user);
@@ -281,8 +287,6 @@ const App: React.FC = () => {
         currentUsers.forEach(user => {
           if (user !== username) {
             const presence = newState[user]?.[0];
-            // FIX: Explicitly cast presence to 'any' to access dynamic properties
-            // from Supabase presence state, resolving the 'unknown' type error.
             if (presence) {
               newParticipants.set(user, { cameraOn: (presence as any).cameraOn, micOn: (presence as any).micOn });
             }
@@ -377,10 +381,12 @@ const App: React.FC = () => {
         setError('Message could not be sent.');
         console.error('Error sending message:', error);
     } else if (newMessage) {
-        // The subscription might be delayed, so we add the message to the state
-        // ourselves for instant feedback. The subscription listener has a
-        // duplicate check which will prevent this message from being added twice.
         setMessages(prev => [...prev, newMessage as ChatMessage]);
+        channelRef.current?.send({
+            type: 'broadcast',
+            event: 'new_message',
+            payload: { message: newMessage },
+        });
     }
   }, [username]);
   
