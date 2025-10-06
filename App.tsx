@@ -8,6 +8,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import FloatingEmojis from './components/FloatingEmojis';
 import ScreenShareWindow from './components/ScreenShareWindow';
 import PulsingHeart from './components/PulsingHeart';
+import PasswordModal from './components/PasswordModal';
 
 const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
@@ -16,6 +17,7 @@ type ParticipantStatus = { cameraOn: boolean; micOn: boolean };
 const App: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [username, setUsername] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
@@ -43,6 +45,10 @@ const App: React.FC = () => {
       setUsername(savedUsername);
     }
   }, []);
+
+  const handlePasswordSuccess = () => {
+    setIsAuthenticated(true);
+  };
 
   const handleUsernameSet = (name: string) => {
     localStorage.setItem('chatUsername', name);
@@ -432,9 +438,10 @@ const App: React.FC = () => {
   return (
     <div className="w-full h-screen flex flex-col p-4 relative">
       <FloatingEmojis isSharing={isMediaActive} />
-      {!username && <UsernameModal onUsernameSet={handleUsernameSet} />}
+      {!isAuthenticated && <PasswordModal onPasswordSuccess={handlePasswordSuccess} />}
+      {isAuthenticated && !username && <UsernameModal onUsernameSet={handleUsernameSet} />}
       
-      <div className={`w-full h-full flex flex-col md:flex-row gap-4 transition-all duration-500 relative z-10 ${!username ? 'scale-95' : ''}`}>
+      <div className={`w-full h-full flex flex-col md:flex-row gap-4 transition-all duration-500 relative z-10 ${!username || !isAuthenticated ? 'scale-95' : ''}`}>
         <main className="flex-1 flex flex-col min-w-0">
           <ScreenShareWindow 
             screenStream={activeScreenShareStream} 
@@ -478,7 +485,7 @@ const App: React.FC = () => {
             onToggleMic={toggleMic}
             isMicOn={isMicOn}
           />
-          <PulsingHeart typingUsers={typingUsers} />
+          <PulsingHeart typingUsers={typingUsers} currentUser={username} />
         </aside>
       </div>
     </div>

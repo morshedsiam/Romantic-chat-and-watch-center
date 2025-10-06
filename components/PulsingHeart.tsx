@@ -2,6 +2,7 @@ import React from 'react';
 
 interface PulsingHeartProps {
   typingUsers: string[];
+  currentUser: string | null;
 }
 
 const HeartIcon = () => (
@@ -10,16 +11,17 @@ const HeartIcon = () => (
     </svg>
 );
 
-const PulsingHeart: React.FC<PulsingHeartProps> = ({ typingUsers }) => {
-  const isTyping = typingUsers.length > 0;
+const PulsingHeart: React.FC<PulsingHeartProps> = ({ typingUsers, currentUser }) => {
+  const otherTypingUsers = typingUsers.filter(user => user !== currentUser);
+  const isTyping = otherTypingUsers.length > 0;
 
   const generateTypingText = () => {
-    if (typingUsers.length === 0) return '';
-    if (typingUsers.length === 1) {
-      return `${typingUsers[0]} is typing...`;
+    if (otherTypingUsers.length === 0) return '';
+    if (otherTypingUsers.length === 1) {
+      return `${otherTypingUsers[0]} is typing...`;
     }
-    if (typingUsers.length === 2) {
-      return `${typingUsers[0]} and ${typingUsers[1]} are typing...`;
+    if (otherTypingUsers.length === 2) {
+      return `${otherTypingUsers[0]} and ${otherTypingUsers[1]} are typing...`;
     }
     return 'Several people are typing...';
   };
