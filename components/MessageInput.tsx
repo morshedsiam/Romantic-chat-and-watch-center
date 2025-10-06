@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
 interface MessageInputProps {
   onSendMessage: (text: string) => void;
@@ -62,26 +62,20 @@ const StopMicIcon = () => (
 const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading, onTypingStatusChange, onToggleScreenShare, isSharing, canShare, onToggleCamera, isCameraOn, onToggleMic, isMicOn }) => {
   const [text, setText] = useState('');
   const [shareAudio, setShareAudio] = useState(false);
-  const typingTimeoutRef = useRef<number | null>(null);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
-    if (typingTimeoutRef.current === null) {
+    const newText = e.target.value;
+    if (text.length === 0 && newText.length > 0) {
       onTypingStatusChange(true);
-    } else {
-      clearTimeout(typingTimeoutRef.current);
-    }
-    typingTimeoutRef.current = window.setTimeout(() => {
+    } else if (text.length > 0 && newText.length === 0) {
       onTypingStatusChange(false);
-      typingTimeoutRef.current = null;
-    }, 1500);
+    }
+    setText(newText);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (text.trim()) {
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = null;
       onTypingStatusChange(false);
       onSendMessage(text);
       setText('');

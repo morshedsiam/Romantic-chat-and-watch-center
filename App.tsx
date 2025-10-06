@@ -388,8 +388,6 @@ const App: React.FC = () => {
         console.error('Error sending message:', error);
     } else if (newMessage) {
         setMessages(prev => [...prev, newMessage as ChatMessage]);
-        // Immediately remove self from typing users for instant UI feedback
-        setTypingUsers(prev => prev.filter(u => u !== username));
         channelRef.current?.send({
             type: 'broadcast',
             event: 'new_message',
@@ -399,7 +397,20 @@ const App: React.FC = () => {
   }, [username]);
   
   const handleTypingStatusChange = useCallback((isTyping: boolean) => {
-    if (channelRef.current && username) {
+    if (!username) return;
+
+    setTypingUsers(prev => {
+        const isCurrentlyListed = prev.includes(username);
+        if (isTyping && !isCurrentlyListed) {
+            return [...prev, username];
+        }
+        if (!isTyping && isCurrentlyListed) {
+            return prev.filter(u => u !== username);
+        }
+        return prev;
+    });
+
+    if (channelRef.current) {
       channelRef.current.send({
         type: 'broadcast',
         event: 'typing',
