@@ -317,20 +317,26 @@ const App: React.FC = () => {
             await createPeerConnection(fromUser, false);
             pc = peerConnectionsRef.current.get(fromUser)!;
           }
+          
           if (pc.signalingState !== 'stable') {
-              // Handle offer collision
-              await Promise.all([
-                  pc.setLocalDescription({type: 'rollback'}),
-                  pc.setRemoteDescription(new RTCSessionDescription(payload.offer))
-              ]);
-          } else {
-              await pc.setRemoteDescription(new RTCSessionDescription(payload.offer));
+            // This is a glare scenario. Be the "polite" peer and roll back our own offer.
+            await pc.setLocalDescription({ type: 'rollback' });
           }
+
+          await pc.setRemoteDescription(new RTCSessionDescription(payload.offer));
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
           channel.send({ type: 'broadcast', event: 'webrtc', payload: { type: 'answer', answer, target: fromUser, from: username } });
+
         } else if (payload.type === 'answer' && pc) {
-          await pc.setRemoteDescription(new RTCSessionDescription(payload.answer));
+          // An answer can only be set if the connection is in the 'have-local-offer' state.
+          // If the state is different, it's likely due to a glare scenario where this
+          // peer has already rolled back its own offer and is no longer expecting an answer.
+          if (pc.signalingState === 'have-local-offer') {
+            await pc.setRemoteDescription(new RTCSessionDescription(payload.answer));
+          } else {
+            console.warn(`[WebRTC] Ignoring answer from ${fromUser} because signaling state is '${pc.signalingState}', not 'have-local-offer'.`);
+          }
         } else if (payload.type === 'candidate' && pc) {
           if (pc.remoteDescription) await pc.addIceCandidate(new RTCIceCandidate(payload.candidate));
         }
