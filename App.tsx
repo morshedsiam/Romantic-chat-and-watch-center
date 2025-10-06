@@ -388,6 +388,8 @@ const App: React.FC = () => {
         console.error('Error sending message:', error);
     } else if (newMessage) {
         setMessages(prev => [...prev, newMessage as ChatMessage]);
+        // Immediately remove self from typing users for instant UI feedback
+        setTypingUsers(prev => prev.filter(u => u !== username));
         channelRef.current?.send({
             type: 'broadcast',
             event: 'new_message',
