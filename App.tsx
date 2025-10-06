@@ -34,7 +34,6 @@ const App: React.FC = () => {
   const localUserStreamRef = useRef<MediaStream>(new MediaStream());
   const localScreenStreamRef = useRef<MediaStream | null>(null);
   const messagesRef = useRef<ChatMessage[]>([]);
-  const typingTimersRef = useRef<Map<string, number>>(new Map());
   
   messagesRef.current = messages;
 
@@ -345,22 +344,16 @@ const App: React.FC = () => {
         const { user, isTyping } = payload;
         if (!user || user === username) return;
 
-        const existingTimer = typingTimersRef.current.get(user);
-        if (existingTimer) {
-          clearTimeout(existingTimer);
-          typingTimersRef.current.delete(user);
-        }
-
-        if (isTyping) {
-          setTypingUsers(prev => prev.includes(user) ? prev : [...prev, user]);
-          const timer = window.setTimeout(() => {
-            setTypingUsers(prev => prev.filter(u => u !== user));
-            typingTimersRef.current.delete(user);
-          }, 2000);
-          typingTimersRef.current.set(user, timer);
-        } else {
-          setTypingUsers(prev => prev.filter(u => u !== user));
-        }
+        setTypingUsers(prev => {
+            const isCurrentlyListed = prev.includes(user);
+            if (isTyping && !isCurrentlyListed) {
+                return [...prev, user];
+            }
+            if (!isTyping && isCurrentlyListed) {
+                return prev.filter(u => u !== user);
+            }
+            return prev;
+        });
       })
       .subscribe(async (status, err) => {
         if (status === 'SUBSCRIBED') updatePresence();
